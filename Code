@@ -1,10 +1,12 @@
 #include <Wire.h>
 #include <QTRIA.h>  
 #include <SoftwareSerial.h>
+//no library required for EMGs and ECGs since they have a different processor that feeds data into the main processor
 
+//setting pins
 #define EMG1 A0   // EMG sensor 1 SCM
 #define EMG2 A1   // EMG sensor 2 SCM 
-#define EMG3 A2   // EMG sensor 3 scalene muscle
+#define EMG3 A2   // EMG sensor 3 scalene muscle 
 #define EMG4 A3   // EMG sensor 4 scalene muscle
 #define ECG A4    // ECG input AD8232
 #define BO2 A5   // Reflectance sensor QTRIA
@@ -13,10 +15,11 @@
 
 SoftwareSerial BTSerial(10, 11);  // RX, TX for Bluetooth
 
-const int EMG_LEVEL = 600;    // high muscle activity
+const int EMG_LEVEL = 600;    // high muscle activity, same contraction frequency across all 4 muscles
 const int ECG_LEVEL = 750;    // irregular heart beat
 const int BO2_LEVEL= 90;    // low blood oxygen saturation
 
+/initializing variables
 int emg1, emg2, emg3, emg4;
 int ecg;
 int BO2;
