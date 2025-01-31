@@ -1,0 +1,71 @@
+#include <Wire.h>
+#include <QTRIA.h>  
+#include <SoftwareSerial.h>
+
+#define EMG1 A0   // EMG sensor 1 SCM
+#define EMG2 A1   // EMG sensor 2 SCM 
+#define EMG3 A2   // EMG sensor 3 scalene muscle
+#define EMG4 A3   // EMG sensor 4 scalene muscle
+#define ECG A4    // ECG input AD8232
+#define BO2 A5   // Reflectance sensor QTRIA
+
+SoftwareSerial BTSerial(10, 11);  // RX, TX for Bluetooth
+
+const int EMG_THRESHOLD = 600;    // high muscle activity
+const int ECG_THRESHOLD = 750;    // irregular heart beat
+const int SpO2_THRESHOLD = 90;    // low blood oxygen saturation
+
+int emg1, emg2, emg3, emg4;
+int ecg;
+int spo2;
+
+void setup() {
+    Serial.begin(9600);  
+    BTSerial.begin(9600); 
+
+    pinMode(EMG1, INPUT);
+    pinMode(EMG2, INPUT);
+    pinMode(EMG3, INPUT);
+    pinMode(EMG4, INPUT);
+    pinMode(ECG, INPUT);
+    pinMode(BO2, INPUT);
+
+    Serial.println("COPD Monitoring System Initialized...");
+    BTSerial.println("COPD Monitoring System Initialized...");
+}
+
+void loop() {
+    emg1 = analogRead(EMG1);
+    emg2 = analogRead(EMG2);
+    emg3 = analogRead(EMG3);
+    emg4 = analogRead(EMG4);
+    ecg = analogRead(ECG);
+    spo2 = analogRead(BO2);
+
+    bool emgAlert = (emg1 > EMG_THRESHOLD || emg2 > EMG_THRESHOLD ||
+                     emg3 > EMG_THRESHOLD || emg4 > EMG_THRESHOLD);
+
+    bool ecgAlert = (ecg > ECG_THRESHOLD);  
+    bool spo2Alert = (spo2 < SpO2_THRESHOLD);
+
+    if (emgAlert && spo2Alert) {
+        sendWarning("WARNING: Early signs of asthma or COPD exacerbation detected.");   
+    }
+
+    if (emgAlert && spo2Alert && ecgAlert) {
+        sendEmergencyAlert();   
+    }
+
+    delay(1000);  
+}
+
+void sendWarning(String message) {
+    Serial.println(message);
+    BTSerial.println(message); 
+}
+
+void sendEmergencyAlert() {
+    Serial.println("EMERGENCY: Severe COPD or Asthma Attack Detected! Alerted Emergency Contacts");
+    BTSerial.println("EMERGENCY: Severe COPD or asthma attack Detected! Alerted Emergency Contacts");
+    BTSerial.println("CALLING EMERGENCY SERVICES...");  
+}
